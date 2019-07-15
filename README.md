@@ -110,7 +110,11 @@ sets the playback time to `seconds`
 
 ### async next()
 
+switches to next track
+
 ### async previous()
+
+switches to previous track
 
 ### async getVolume(channel = 'Master')
 
