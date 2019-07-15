@@ -61,15 +61,15 @@ or
 
 ```json
 {
-  '@id': 0,
-  '@parentId': -1,
-  '@restricted': false,
-  'upnp:class': 'object.item.audioItem',
-  'dc:title': 'Title',
-  'dc:creator': 'Artist',
-  res: {
-    '@protocolInfo': 'http-get:*:video/mp3:*',
-    '#text': 'https://archive.org/download/testmp3testfile/mpthreetest.mp3'
+  "@id": 0,
+  "@parentId": -1,
+  "@restricted": false,
+  "upnp:class": "object.item.audioItem",
+  "dc:title": "Title",
+  "dc:creator": "Artist",
+  "res": {
+    "@protocolInfo": "http-get:*:video/mp3:*",
+    "#text": "https://archive.org/download/testmp3testfile/mpthreetest.mp3"
   }
 }
 ```
