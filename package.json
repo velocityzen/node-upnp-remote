@@ -23,7 +23,7 @@
   "dependencies": {
     "fast-xml-parser": "^3.12.16",
     "node-ssdp": "^4.0.0",
-    "node-upnp": "^1.0.0"
+    "node-upnp": "^1.1.0"
   },
   "devDependencies": {
     "ava": "^2.1.0",

@@ -67,7 +67,7 @@ test.serial('gets/sets mute state', async t => {
 });
 
 test.serial('loads audio file', async t => {
-  await remote.load({
+  await remote.setURI({
     protocolInfo: 'http-get:*:audio/mp3:*',
     upnpClass: UPnPClass.audioItem,
     url: 'https://archive.org/download/testmp3testfile/mpthreetest.mp3',

@@ -31,7 +31,7 @@ await remote.off('Volume', volumeHandler);
 
 ### Events
 
-UPnP Remote forwards all the events from `AVTransport` and `RenderingControl` services and adds following events for convenience:
+UPnP Remote adds following events for convenience:
 
 - `Transitioning`
 - `Playing`
@@ -42,7 +42,7 @@ _note that all events names start with a capital letter as it is defined in UPnP
 
 ## API
 
-### async load(options)
+### async setURI(options)
 
 loads the media file to the device. Options are:
 
@@ -79,10 +79,6 @@ _Properties names start with '@' will be parsed as attributes in the XML_
 ### async on(eventName, listener)
 
 adds UPnP event listener
-
-### async once(eventName, listener)
-
-adds UPnP event listener that will be triggered only once
 
 ### async off(eventName, listener)
 

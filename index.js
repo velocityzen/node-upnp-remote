@@ -1,4 +1,3 @@
-const EventEmitter = require('events');
 const Client = require('node-upnp');
 const { code: errorCode } = require('node-upnp/error');
 const { formatTime, parseTime } = require('node-upnp/time');
@@ -6,18 +5,27 @@ const { formatTime, parseTime } = require('node-upnp/time');
 const { parseProtocols } = require('./response');
 const { createURIMetadata } = require('./request');
 
-class UPnPRemote extends EventEmitter {
+const additionalEvents = [
+  'Transitioning',
+  'Playing',
+  'Paused',
+  'Stopped'
+];
+
+const forcedVariables = [
+  'Volume',
+  'Mute'
+]
+
+class UPnPRemote {
   constructor(opts = {}) {
-    super();
-
     this.instanceId = opts.instanceId || 0;
-    this.client = new Client(opts);
-
+    this.client = opts.client || new Client(opts);
     this.handleStateUpdate = this.handleStateUpdate.bind(this);
-    this.upnpListenersCount = 0;
+    this.customEventCounter = 0;
   }
 
-  async load({ metadata, protocolInfo, uri, autoplay, upnpClass, subtitles, title, creator }) {
+  async setURI({ metadata, protocolInfo, uri, autoplay, upnpClass, subtitles, title, creator }) {
     try {
       const res = await this.client.call('ConnectionManager', 'PrepareForConnection', {
         RemoteProtocolInfo: protocolInfo,
@@ -166,64 +174,59 @@ class UPnPRemote extends EventEmitter {
     });
   }
 
-  async on(eventName, listener) {
-    if (this.upnpListenersCount === 0) {
-      await this.addSubscriptions();
+  hasService(serviceId) {
+    return this.client.hasService(serviceId);
+  }
+
+  async on(eventName, listener, options = {}) {
+    if (additionalEvents.includes(eventName)) {
+      this.client.eventEmmiter.on(eventName, listener);
+      await this.client.on('TransportState', this.handleStateUpdate);
+      this.customEventCounter++;
+      return;
     }
 
-    this.upnpListenersCount++;
-    super.on(eventName, listener);
+    if (forcedVariables.includes(eventName)) {
+      options.force = true;
+    }
+
+    await this.client.on(eventName, listener, options);
   }
 
   async off(eventName, listener) {
-    super.off(eventName, listener);
-    this.upnpListenersCount--;
-    if (this.upnpListenersCount === 0) {
-      await this.removeSubsriptions();
-    }
-  }
-
-  async once(eventName, listener) {
-    async function once(...args) {
-      await this.off(event, once);
-      listener.apply(undefined, args);
+    if (additionalEvents.includes(eventName)) {
+      this.client.eventEmmiter.off(eventName, listener);
+      this.customEventCounter--;
+      if (!this.customEventCounter) {
+        await this.client.off('TransportState', this.handleStateUpdate);
+      }
+      return;
     }
 
-    await this.on(eventName, once);
+    await this.client.off(eventName, listener);
   }
 
   async removeAllListeners() {
-    super.removeAllListeners();
-    this.upnpListenersCount--;
-    await this.removeSubsriptions();
-  }
-
-  async addSubscriptions() {
-    await this.client.subscribe('AVTransport', this.handleStateUpdate);
-    await this.client.subscribe('RenderingControl', this.handleStateUpdate);
-  }
-
-  async removeSubsriptions() {
-    await this.client.unsubscribe('AVTransport', this.handleStateUpdate);
-    await this.client.unsubscribe('RenderingControl', this.handleStateUpdate);
+    await this.client.removeAllListeners();
   }
 
   handleStateUpdate(e) {
-    this.emit(e.name, e.value);
+    const client = this.client;
+    client.emit(e.name, e.value);
 
     if (e.name === 'TransportState') {
       switch (e.value) {
         case 'TRANSITIONING':
-          this.emit('Transitioning');
+          client.emit('Transitioning');
           break;
         case 'PLAYING':
-          this.emit('Playing');
+          client.emit('Playing');
           break;
         case 'PAUSED_PLAYBACK':
-          this.emit('Paused');
+          client.emit('Paused');
           break;
         case 'STOPPED':
-          this.emit('Stopped');
+          client.emit('Stopped');
           break;
       }
     }
