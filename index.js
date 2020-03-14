@@ -5,17 +5,9 @@ const { formatTime, parseTime } = require('node-upnp/time');
 const { parseProtocols } = require('./response');
 const { createURIMetadata } = require('./request');
 
-const additionalEvents = [
-  'Transitioning',
-  'Playing',
-  'Paused',
-  'Stopped'
-];
+const additionalEvents = ['Transitioning', 'Playing', 'Paused', 'Stopped'];
 
-const forcedVariables = [
-  'Volume',
-  'Mute'
-]
+const forcedVariables = ['Volume', 'Mute'];
 
 class UPnPRemote {
   constructor(opts = {}) {
@@ -25,14 +17,27 @@ class UPnPRemote {
     this.customEventCounter = 0;
   }
 
-  async setURI({ metadata, protocolInfo, uri, autoplay, upnpClass, subtitles, title, creator }) {
+  async setURI({
+    metadata,
+    protocolInfo,
+    uri,
+    autoplay,
+    upnpClass,
+    subtitles,
+    title,
+    creator
+  }) {
     try {
-      const res = await this.client.call('ConnectionManager', 'PrepareForConnection', {
-        RemoteProtocolInfo: protocolInfo,
-        PeerConnectionManager: null,
-        PeerConnectionID: -1,
-        Direction: 'Input'
-      });
+      const res = await this.client.call(
+        'ConnectionManager',
+        'PrepareForConnection',
+        {
+          RemoteProtocolInfo: protocolInfo,
+          PeerConnectionManager: null,
+          PeerConnectionID: -1,
+          Direction: 'Input'
+        }
+      );
       this.instanceId = res.AVTransportID;
     } catch (e) {
       // If PrepareForConnection is not implemented, we keep the default (0) InstanceID
@@ -45,7 +50,13 @@ class UPnPRemote {
       InstanceID: this.instanceId,
       CurrentURI: uri,
       CurrentURIMetaData: createURIMetadata({
-        metadata, uri, upnpClass, title, creator, protocolInfo, subtitles
+        metadata,
+        uri,
+        upnpClass,
+        title,
+        creator,
+        protocolInfo,
+        subtitles
       })
     });
 
@@ -133,14 +144,13 @@ class UPnPRemote {
   }
 
   async getPositionInfo() {
-    const {
-      TrackDuration,
-      RelTime,
-      AbsTime,
-      ...rest
-    } = await this.client.call('AVTransport', 'GetPositionInfo', {
-      InstanceID: this.instanceId
-    });
+    const { TrackDuration, RelTime, AbsTime, ...rest } = await this.client.call(
+      'AVTransport',
+      'GetPositionInfo',
+      {
+        InstanceID: this.instanceId
+      }
+    );
 
     return {
       ...rest,

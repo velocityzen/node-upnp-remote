@@ -21,12 +21,12 @@
   "author": "Alexey Novikov <v@2dubs.com>",
   "license": "MIT",
   "dependencies": {
-    "fast-xml-parser": "^3.12.16",
+    "fast-xml-parser": "^3.16.0",
     "node-ssdp": "^4.0.0",
-    "node-upnp": "^1.1.0"
+    "node-upnp": "^1.2.0"
   },
   "devDependencies": {
-    "ava": "^2.1.0",
-    "nyc": "^14.1.1"
+    "ava": "^3.0.0",
+    "nyc": "^15.0.0"
   }
 }
